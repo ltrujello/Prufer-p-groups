@@ -23,7 +23,7 @@ def permute_colors(num): #num is the number of colors
 def prufer_rep(filename, prime, order): 
     center = (500, 500) #center of the complex circle
     radius = 200 #radius of the complex circle
-    line_scale = 2.5 #scaling factor for arrows
+    line_scale = 2 #scaling factor for arrows
     tip_scale = 0.1
     colors = ['blue', 'purple', 'red', 'green', 'magenta', 'orange', 'black', "brown", 'blue', "purple", "red"] #color sequence
 
