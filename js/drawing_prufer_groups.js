@@ -1,24 +1,27 @@
 // main controls for output
-aspect_ratio = 4; //vary for aesthetics
-const center_x = window.outerWidth/aspect_ratio;
+aspect_ratio = 2.5; //vary for aesthetics
+const center_x = window.outerWidth/aspect_ratio; //center of complex unit circle
 const center_y = window.innerWidth/(2*aspect_ratio);
-const radius = aspect_ratio*100;
-const edge = radius/(aspect_ratio*50)
-const axis_len = 3.5*radius;
-let line_scale = 2.5;
-let tip_scale = .5;
+const radius = aspect_ratio*100; //radius of complex unit circle
+const edge = radius/(aspect_ratio*50) //thickness of complex unit circle
+const axis_len = 3.5*radius; //length of the complex axis
+let line_scale = 2.5; //distance between subsequent groups of circles
+let tip_scale = .5; //controls decrease in size of circles
 let tip;
-let colors = ["#C0392B", "#9B59B6", "#2980B9", "#27AE60", "#F1C40F", "#E67E22", "#CD6155", "#AF7AC5", "#5499C7", "#52BE80", "#F4D03F", "#EB984E"];
+let colors = [ "#000000", "#3498DB", "#ff0000", "#9B59B6", "#2980B9", "#27AE60", "#F1C40F", "#E67E22", "#CD6155", "#AF7AC5", "#5499C7", "#52BE80", "#F4D03F", "#EB984E"];
 //the prime and order
-const prime = 2;
+const prime = 2; 
 const order = 10;
 
 //initializes the svg, searches for the id = "dataviz_basicZoom"
 const svg = d3.select("#dataviz_basicZoom")
 .append("svg")
-	.attr("width",  window.outerWidth)
-	.attr("height",  window.outerHeight)
-	.call(d3.zoom().on("zoom", function () { //takes care of zoom thanks to d3
+	.attr("width",  window.innerWidth)
+	.attr("height",  window.innerHeight)
+	.call(d3.zoom()
+		.scaleExtent([.38, Infinity])
+		// .translateExtent([0,0], [aspect_ratio*window.innerWidth, aspect_ratio*window.innerHeight])
+		.on("zoom", function () { //takes care of zoom thanks to d3
 	svg.attr("transform", d3.event.transform)
 	}))
 .append("g")
@@ -48,6 +51,7 @@ svg.append("line")
 	.attr("y1",  center_y - axis_len)
 	.attr("x2",  center_x)
 	.attr("y2",  center_y + axis_len)
+
 //adds the rest of the diagram
 let angles = pthAngles(prime, order);
 angles.forEach(drawCircles);
@@ -59,15 +63,28 @@ function drawCircles(item, index) {
 	function drawSubCircles(item){
 		endpoint_x = (1 + line_scale)*radius*Math.cos(item);
 		endpoint_y = (1 + line_scale)*radius*Math.sin(item)
-		svg.append("line")
-		.style("stroke", colors[index])
-		.attr("x1",  center_x + radius*Math.cos(item))
-		.attr("y1",  center_y + radius*Math.sin(item))
-		.attr("x2",  center_x + endpoint_x)
-		.attr("y2",  center_y + endpoint_y)
 
+		//we need to consider two cases so that the lines don't run into each other. 
+		if(tip > 2){
+			svg.append("line")
+			.style("stroke", colors[index])
+			.attr("x1",  center_x + radius*Math.cos(item))
+			.attr("y1",  center_y + radius*Math.sin(item))
+			.attr("x2",  center_x + endpoint_x)
+			.attr("y2",  center_y + endpoint_y)
+		}		
+		else{
+			svg.append("line")
+			.style("stroke", colors[index])
+			.attr("x1",  center_x + radius*Math.cos(item))
+			.attr("y1",  center_y + radius*Math.sin(item))
+			.attr("x2",  center_x + endpoint_x)
+			.attr("y2",  center_y + endpoint_y)
+			.attr("stroke-width", tip/1.3)
+		}
 		//we need to consider two cases so that the circles don't run into each other. 
-		if(prime**(index) < 33){
+		const size_check = prime**(index); 
+		if(size_check < 33){
 			svg.append("circle")
 			.attr("cx", center_x + endpoint_x)
 			.attr("cy", center_y + endpoint_y)
